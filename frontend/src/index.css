@@ -194,7 +194,16 @@ button:active {
   gap: 1.5rem;
 }
 
-/* MOBILE APP RESPONSIVENESS */
+/* ============================================
+   MOBILE APP RESPONSIVENESS - FULL OVERHAUL
+   ============================================ */
+
+/* Global mobile-safe inputs */
+input, select, textarea {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
 @media (max-width: 768px) {
   .dashboard-layout {
     display: flex;
@@ -202,6 +211,7 @@ button:active {
     min-height: 100vh;
   }
 
+  /* Bottom navigation bar */
   .sidebar {
     position: fixed;
     bottom: 0;
@@ -249,49 +259,60 @@ button:active {
     height: 20px;
   }
 
+  /* Main content area */
   .main-content {
-    padding: 1rem;
+    padding: 0.75rem;
     padding-bottom: 80px;
     max-height: none;
     overflow-y: visible;
+    overflow-x: hidden;
   }
   
+  /* Header */
   .header {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
+    align-items: flex-start !important;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
   }
   
   .header-actions {
     width: 100%;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.5rem;
   }
 
   .header h1 {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
+    word-break: break-word;
+  }
+
+  .header p {
+    font-size: 0.8rem;
   }
 
   .btn-logout {
     width: 100%;
     justify-content: center;
-    padding: 0.8rem;
+    padding: 0.7rem;
   }
 
+  /* Grid layouts - all stack on mobile */
   .grid-2-1, .grid-1-1-1, .stats-grid {
     grid-template-columns: 1fr !important;
-    gap: 1.5rem;
+    gap: 0.75rem;
   }
 
+  /* Cards */
   .card {
-    padding: 1.25rem;
-    margin-bottom: 1rem;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
     width: 100%;
     text-align: left;
+    overflow: hidden;
   }
 
-  /* Only center cards that explicitly contain charts or are marked for centering */
+  /* Charts centering */
   .reports-container .card, .chart-card {
     display: flex;
     flex-direction: column;
@@ -299,11 +320,9 @@ button:active {
     text-align: center;
   }
 
-  .card > div:not(.table-container) {
+  /* Fix card inner divs - but don't center form content */
+  .card > div:not(.table-container):not(form):not(.faded-section) {
     width: 100% !important;
-    display: flex;
-    justify-content: center;
-    align-items: center;
   }
 
   canvas {
@@ -311,32 +330,151 @@ button:active {
     height: auto !important;
   }
 
+  /* Tables */
   .table-container {
     width: 100%;
     overflow-x: auto;
-    text-align: left; /* Keep tables left aligned */
+    -webkit-overflow-scrolling: touch;
+    text-align: left;
   }
 
   table {
-    min-width: 600px; /* Force scroll */
+    min-width: 500px;
   }
 
   table th, table td {
-    font-size: 0.85rem;
-    padding: 0.75rem 0.5rem !important;
+    font-size: 0.8rem;
+    padding: 0.5rem 0.4rem !important;
+    white-space: nowrap;
   }
 
   .desktop-only {
     display: none !important;
   }
+
+  /* ============ FORM FIXES ============ */
+  /* All inputs and selects must stay inside their containers */
+  input[type="text"],
+  input[type="number"],
+  input[type="date"],
+  input[type="email"],
+  input[type="password"],
+  input[type="search"],
+  input[type="tel"],
+  select,
+  textarea {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    font-size: 16px !important; /* Prevents iOS zoom on focus */
+  }
+
+  /* Form grid columns - stack on mobile */
+  form div[style*="gridTemplateColumns"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Fix inline flex filter bars (Fleet page) */
+  .card[style*="display: flex"][style*="gap: 1rem"][style*="alignItems: center"] {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  /* ============ MODAL FIXES ============ */
+  /* All fixed modals must be mobile-friendly */
+  div[style*="position: fixed"][style*="display: flex"][style*="alignItems: center"][style*="justifyContent: center"] {
+    padding: 0.75rem !important;
+    align-items: flex-start !important;
+    padding-top: 2rem !important;
+    overflow-y: auto !important;
+  }
+
+  div[style*="position: fixed"] > .card,
+  div[style*="position: fixed"] > div[style*="background"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    max-height: 85vh !important;
+    overflow-y: auto !important;
+  }
+
+  /* ============ STAT CARDS ============ */
+  .stat-card {
+    padding: 0.75rem !important;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+  }
+
+  /* ============ DASHBOARD SOUND SETTINGS ============ */
+  div[style*="gridTemplateColumns: repeat(auto-fill, minmax(200px"] {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.5rem !important;
+  }
+
+  /* ============ FLEET MANAGEMENT ============ */
+  /* Button groups in header */
+  .header > div[style*="display: flex"][style*="gap: 1rem"] {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+
+  .header > div[style*="display: flex"][style*="gap: 1rem"] button {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  /* ============ MAINTENANCE FORM ============ */
+  /* Alerts section with checkbox + input side by side */
+  div[style*="justifyContent: space-between"] {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  /* ============ SEDES GRID ============ */
+  div[style*="gridTemplateColumns: repeat(auto-fill, minmax(300px"] {
+    grid-template-columns: 1fr !important;
+  }
 }
 
+/* Very small screens */
 @media (max-width: 480px) {
   .sidebar-link span {
-    display: none; /* Hide text on very small screens to fit more icons */
+    display: none;
   }
   .sidebar-link {
     min-width: auto;
+  }
+
+  .main-content {
+    padding: 0.5rem;
+    padding-bottom: 75px;
+  }
+
+  .card {
+    padding: 0.75rem;
+    border-radius: 8px;
+  }
+
+  .header h1 {
+    font-size: 1.1rem;
+  }
+
+  /* Sound settings - single column on tiny screens */
+  div[style*="gridTemplateColumns: repeat(auto-fill, minmax(200px"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Maintenance history items */
+  .maintenance-item {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.5rem !important;
   }
 }
 

@@ -1,0 +1,16 @@
+RewriteEngine On
+
+# EXCEPCIÓN PARA VALIDACIÓN DE SSL (AutoSSL / Let's Encrypt)
+RewriteCond %{REQUEST_URI} ^/\.well-known/acme-challenge/ [NC]
+RewriteRule .* - [L]
+
+# Redirección para el nuevo subdominio CRM
+RewriteCond %{HTTP_HOST} ^(www\.)?crm\.corporacionjf\.com$ [NC]
+RewriteCond %{REQUEST_URI} !^/jf/public/
+RewriteRule ^(.*)$ /jf/public/$1 [L]
+
+# Configuración estándar para el sitio principal
+RewriteCond %{HTTP_HOST} ^(www\.)?mecanicoenmedellin\.com$ [NC]
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^ index.php [L]

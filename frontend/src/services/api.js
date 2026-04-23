@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_URL = 'https://www.mecanicoenmedellin.com/jf/public/api';
+const API_URL = window.location.hostname.includes('corporacionjf.com') 
+  ? 'https://crm.corporacionjf.com/api' 
+  : 'https://www.mecanicoenmedellin.com/jf/public/api';
 
 const api = axios.create({
   baseURL: API_URL,

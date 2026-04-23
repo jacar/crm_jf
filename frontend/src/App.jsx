@@ -22,9 +22,14 @@ const ProtectedRoute = ({ children }) => {
 
 function App() {
   const isAuthenticated = !!localStorage.getItem('token');
+  
+  // Detectar basename dinámico según el dominio
+  const getBasename = () => {
+    return window.location.hostname.includes('corporacionjf.com') ? '' : '/jf/public';
+  };
 
   return (
-    <Router basename="/jf/public">
+    <Router basename={getBasename()}>
       <Toaster position="top-right" />
       <Routes>
         {/* Ruta de Login - Fuera del layout principal */}
