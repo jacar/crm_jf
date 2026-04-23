@@ -1,0 +1,28 @@
+<?php
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\VehiculoController;
+use App\Http\Controllers\MaintenanceController;
+use App\Http\Controllers\SedeController;
+use App\Http\Controllers\AuthController;
+
+// Rutas Públicas
+Route::post('/login', [AuthController::class, 'login']);
+
+// Rutas Protegidas
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/me', [AuthController::class, 'me']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+
+    Route::get('/stats', [VehiculoController::class, 'stats']);
+    Route::get('/vehicles', [VehiculoController::class, 'index']);
+    Route::post('/vehicles', [VehiculoController::class, 'store']);
+    Route::post('/vehicles/{id}/update-km', [VehiculoController::class, 'updateKm']);
+
+    Route::get('/mantenimientos', [MaintenanceController::class, 'index']);
+    Route::post('/mantenimientos', [MaintenanceController::class, 'store']);
+
+    Route::get('/sedes', [SedeController::class, 'index']);
+    Route::post('/sedes', [SedeController::class, 'store']);
+});

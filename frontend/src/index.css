@@ -1,0 +1,342 @@
+:root {
+  --primary: #0359c6;
+  --primary-light: #0476f5;
+  --secondary: #7f01b3;
+  --accent: #7f01b3;
+  --background: #F8FAFC;
+  --surface: #FFFFFF;
+  --text: #1E293B;
+  --text-muted: #64748B;
+  --error: #EF4444;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --border: #E2E8F0;
+  --radius: 12px;
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4 {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  border-radius: var(--radius);
+  font-weight: 600;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: white;
+  padding: 0.75rem 1.5rem;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-light);
+}
+
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+
+.dashboard-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+}
+
+.sidebar {
+  background: var(--primary);
+  color: white;
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.sidebar .logo {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: var(--secondary);
+}
+
+.sidebar-nav {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem  1rem;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.sidebar-link:hover, .sidebar-link.active {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.main-content {
+  padding: 2rem;
+  max-height: 100vh;
+  overflow-y: auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.btn-logout {
+  background: var(--error);
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* Alert styles */
+.alert-critical {
+  border-left: 5px solid var(--error);
+  background: #FEF2F2;
+}
+
+.alert-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.alert-dot.red { background: var(--error); }
+.alert-dot.green { background: var(--success); }
+
+/* Grid for stats */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.stat-value {
+  font-size: 1.875rem;
+  font-weight: 700;
+}
+
+.stat-label {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.mobile-only-logout {
+  display: none;
+}
+
+/* Responsive Grid Utilities */
+.grid-2-1 {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+}
+
+.grid-1-1-1 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+/* MOBILE APP RESPONSIVENESS */
+@media (max-width: 768px) {
+  .dashboard-layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  .sidebar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    flex-direction: row;
+    padding: 0.25rem;
+    gap: 0;
+    height: 65px;
+    z-index: 9999;
+    box-shadow: 0 -4px 15px rgba(0,0,0,0.15);
+    justify-content: space-around;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .sidebar .logo, .sidebar .desktop-only-bottom {
+    display: none;
+  }
+
+  .mobile-only-logout {
+    display: block;
+  }
+
+  .sidebar-nav {
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-around;
+    margin: 0;
+    padding: 0;
+  }
+
+  .sidebar-link {
+    flex-direction: column;
+    padding: 0.4rem;
+    font-size: 0.6rem;
+    gap: 0.25rem;
+    border-radius: 6px;
+    min-width: 60px;
+    text-align: center;
+  }
+
+  .sidebar-link svg {
+    margin: 0;
+    width: 20px;
+    height: 20px;
+  }
+
+  .main-content {
+    padding: 1rem;
+    padding-bottom: 80px;
+    max-height: none;
+    overflow-y: visible;
+  }
+  
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .header-actions {
+    width: 100%;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .header h1 {
+    font-size: 1.5rem;
+  }
+
+  .btn-logout {
+    width: 100%;
+    justify-content: center;
+    padding: 0.8rem;
+  }
+
+  .grid-2-1, .grid-1-1-1, .stats-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem;
+  }
+
+  .card {
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    width: 100%;
+    text-align: left;
+  }
+
+  /* Only center cards that explicitly contain charts or are marked for centering */
+  .reports-container .card, .chart-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .card > div:not(.table-container) {
+    width: 100% !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  canvas {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  .table-container {
+    width: 100%;
+    overflow-x: auto;
+    text-align: left; /* Keep tables left aligned */
+  }
+
+  table {
+    min-width: 600px; /* Force scroll */
+  }
+
+  table th, table td {
+    font-size: 0.85rem;
+    padding: 0.75rem 0.5rem !important;
+  }
+
+  .desktop-only {
+    display: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar-link span {
+    display: none; /* Hide text on very small screens to fit more icons */
+  }
+  .sidebar-link {
+    min-width: auto;
+  }
+}
+

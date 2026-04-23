@@ -1,0 +1,5 @@
+open ftp.mecanicoenmedellin.com
+jf@mecanicoenmedellin.com
+Forastaero_938
+ls
+quit

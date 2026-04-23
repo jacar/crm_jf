@@ -1,0 +1,6 @@
+open ftp.mecanicoenmedellin.com
+jf@mecanicoenmedellin.com
+Forastaero_938
+cd jf/public
+put import_remote.php
+quit
