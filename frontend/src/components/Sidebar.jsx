@@ -119,6 +119,24 @@ const Sidebar = () => {
           <LogOut size={20} />
           Cerrar Sesión
         </button>
+
+        <div style={{ 
+          marginTop: '2rem', 
+          padding: '1rem 0.5rem', 
+          borderTop: '1px solid rgba(255,255,255,0.05)',
+          fontSize: '0.7rem',
+          color: 'rgba(255,255,255,0.4)',
+          textAlign: 'center',
+          lineHeight: '1.4'
+        }}>
+          <div style={{ marginBottom: '0.5rem' }}>
+            Software Privado para <strong>corporacionjf.com</strong>
+            <br />Venezuela
+          </div>
+          <div>
+            Desarrollado por <a href="https://jacomeovalle.com" target="_blank" rel="noopener noreferrer" style={{ color: '#38bdf8', textDecoration: 'none', fontWeight: 'bold' }}>Armando Ovalle</a>
+          </div>
+        </div>
       </div>
     </aside>
   );

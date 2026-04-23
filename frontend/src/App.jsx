@@ -12,6 +12,7 @@ import Login from './pages/Login';
 import Placeholder from './pages/Placeholder';
 import Reports from './pages/Reports';
 import Teams from './pages/Teams';
+import SettingsPage from './pages/Settings';
 import { Toaster } from 'react-hot-toast';
 
 // Componente para proteger rutas
@@ -52,7 +53,7 @@ function App() {
                     <Route path="/sedes" element={<Sedes />} />
                     <Route path="/reportes" element={<Reports />} />
                     <Route path="/usuarios" element={<Teams />} />
-                    <Route path="/configuracion" element={<Placeholder title="Configuración del Sistema" />} />
+                    <Route path="/configuracion" element={<SettingsPage />} />
                     <Route path="*" element={<Navigate to="/" />} />
                   </Routes>
                   <ChatWidget />
