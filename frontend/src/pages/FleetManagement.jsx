@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Truck, Plus, Filter, MoreVertical, FileText, Trash2, MapPin, Loader2, Edit3, X } from 'lucide-react';
-import { getVehicles, getSedes, importVehicles, deleteVehicle, updateVehicle } from '../services/api';
+import { getVehicles, getSedes, importVehicles, deleteVehicle, updateVehicle, getHistory } from '../services/api';
 import toast from 'react-hot-toast';
 
 const FleetManagement = () => {
   const [vehicles, setVehicles] = useState([]);
   const [sedes, setSedes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedSede, setSelectedSede] = useState('ALL');
   const [searchTerm, setSearchTerm] = useState('');
   const [editingVehicle, setEditingVehicle] = useState(null);
   const [historyData, setHistoryData] = useState(null);
