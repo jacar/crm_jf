@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { MapPin, Plus, Loader2, Building2, X } from 'lucide-react';
 import { getSedes, createSede } from '../services/api';
+import { useNavigate } from 'react-router-dom';
 
 const Sedes = () => {
+  const navigate = useNavigate();
   const [sedes, setSedes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -102,7 +104,29 @@ const Sedes = () => {
           <p style={{ color: 'var(--text-muted)' }}>No hay sedes registradas.</p>
         ) : (
           sedes.map(sede => (
-            <div key={sede.id} className="card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', background: '#1e293b', padding: '1.5rem', borderRadius: '1rem' }}>
+            <div 
+              key={sede.id} 
+              className="card" 
+              onClick={() => navigate('/', { state: { filterSede: sede.nombre } })}
+              style={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                gap: '1rem', 
+                background: '#1e293b', 
+                padding: '1.5rem', 
+                borderRadius: '1rem',
+                cursor: 'pointer',
+                transition: 'transform 0.2s, background 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#334155';
+                e.currentTarget.style.transform = 'translateY(-5px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#1e293b';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                 <div style={{ background: 'rgba(56, 189, 248, 0.1)', padding: '0.75rem', borderRadius: '12px', color: '#38bdf8' }}>
                   <Building2 size={24} />

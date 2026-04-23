@@ -7,6 +7,7 @@ use App\Models\LecturaKm;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\AlertaMantenimiento;
+use Illuminate\Support\Facades\DB;
 
 class VehiculoController extends Controller
 {
@@ -22,7 +23,16 @@ class VehiculoController extends Controller
             'marca' => 'required',
             'modelo' => 'required',
             'sede_id' => 'required|exists:sedes,id',
-            'km_proximo_mantenimiento' => 'nullable|integer'
+            'n_interno' => 'nullable|string',
+            'propietario' => 'nullable|string',
+            'combustible' => 'nullable|string',
+            'tipo' => 'nullable|string',
+            'empresa' => 'nullable|string',
+            'km_proximo_mantenimiento' => 'nullable|integer',
+            'fecha_vencimiento_poliza' => 'nullable|date',
+            'fecha_vencimiento_roct' => 'nullable|date',
+            'fecha_vencimiento_impuesto' => 'nullable|date',
+            'fecha_vencimiento_bateria' => 'nullable|date',
         ]);
 
         return Vehiculo::create($validated);
@@ -36,7 +46,16 @@ class VehiculoController extends Controller
             'marca' => 'required',
             'modelo' => 'required',
             'sede_id' => 'required|exists:sedes,id',
-            'km_proximo_mantenimiento' => 'nullable|integer'
+            'n_interno' => 'nullable|string',
+            'propietario' => 'nullable|string',
+            'combustible' => 'nullable|string',
+            'tipo' => 'nullable|string',
+            'empresa' => 'nullable|string',
+            'km_proximo_mantenimiento' => 'nullable|integer',
+            'fecha_vencimiento_poliza' => 'nullable|date',
+            'fecha_vencimiento_roct' => 'nullable|date',
+            'fecha_vencimiento_impuesto' => 'nullable|date',
+            'fecha_vencimiento_bateria' => 'nullable|date',
         ]);
 
         $vehiculo->update($validated);
@@ -70,9 +89,6 @@ class VehiculoController extends Controller
         ]);
     }
 
-    /**
-     * Actualiza el kilometraje y verifica alertas.
-     */
     public function updateKm(Request $request, $id)
     {
         $request->validate([
@@ -81,69 +97,55 @@ class VehiculoController extends Controller
 
         $vehiculo = Vehiculo::findOrFail($id);
         
-        // 1. Registrar lectura
         LecturaKm::create([
             'vehiculo_id' => $vehiculo->id,
             'user_id' => $request->user() ? $request->user()->id : 1,
             'km_leido' => $request->km_leido
         ]);
 
-        // 2. Actualizar vehículo
         $vehiculo->km_actual = $request->km_leido;
-
         $mantenimientosRealizados = [];
 
-        // Lógica de reseteo si se marcó que se hizo el servicio
-        if ($request->realizo_mantenimiento) {
-            $vehiculo->km_proximo_mantenimiento = $vehiculo->km_actual + 5000;
-            \App\Models\Mantenimiento::create([
-                'vehiculo_id' => $vehiculo->id,
-                'tipo_mantenimiento' => 'Mantenimiento Preventivo (Aceite)',
-                'tipo_taller' => 'interno',
-                'fecha_mantenimiento' => now(),
-                'notas' => 'Registrado por operador en toma de KM'
-            ]);
-            $mantenimientosRealizados[] = 'Cambio de Aceite';
-        }
+        // Dynamic Resets
+        $resets = [
+            'realizo_mantenimiento' => ['km_proximo_mantenimiento', 5000, 'Mantenimiento General'],
+            'realizo_aceite' => ['km_proximo_aceite', 5000, 'Cambio de Aceite'],
+            'realizo_filtro_aire' => ['km_proximo_filtro_aire', 10000, 'Filtro Aire'],
+            'realizo_filtro_combustible' => ['km_proximo_filtro_combustible', 5000, 'Filtro Combustible'],
+            'realizo_rotacion' => ['km_proxima_rotacion', 10000, 'Rotación de Cauchos'],
+            'realizo_lavado' => ['km_proximo_lavado', 2000, 'Lavado Motor y Chasis'],
+            'realizo_correas' => ['km_proximas_correas', 50000, 'Cambio de Correas'],
+            'realizo_pastillas' => ['km_proximas_pastillas', 20000, 'Bandas/Pastillas Freno']
+        ];
 
-        if ($request->realizo_rotacion) {
-            $vehiculo->km_proxima_rotacion = $vehiculo->km_actual + 10000;
-            \App\Models\Mantenimiento::create([
-                'vehiculo_id' => $vehiculo->id,
-                'tipo_mantenimiento' => 'Rotación de Cauchos',
-                'tipo_taller' => 'interno',
-                'fecha_mantenimiento' => now(),
-                'notas' => 'Registrado por operador en toma de KM'
-            ]);
-            $mantenimientosRealizados[] = 'Rotación de Cauchos';
-        }
+        foreach ($resets as $input => $config) {
+            if ($request->$input) {
+                $column = $config[0];
+                $interval = $config[1];
+                $label = $config[2];
 
-        if ($request->realizo_lavado) {
-            $vehiculo->km_proximo_lavado = $vehiculo->km_actual + 2000;
-            \App\Models\Mantenimiento::create([
-                'vehiculo_id' => $vehiculo->id,
-                'tipo_mantenimiento' => 'Lavado de Chasis',
-                'tipo_taller' => 'interno',
-                'fecha_mantenimiento' => now(),
-                'notas' => 'Registrado por operador en toma de KM'
-            ]);
-            $mantenimientosRealizados[] = 'Lavado de Chasis';
+                $vehiculo->$column = $vehiculo->km_actual + $interval;
+                
+                \App\Models\Mantenimiento::create([
+                    'vehiculo_id' => $vehiculo->id,
+                    'tipo_mantenimiento' => $label,
+                    'tipo_taller' => 'interno',
+                    'fecha_mantenimiento' => now(),
+                    'notas' => 'Registrado automáticamente en toma de KM'
+                ]);
+                $mantenimientosRealizados[] = $label;
+            }
         }
 
         $vehiculo->save();
 
-        // 3. Verificar Alertas para respuesta
-        $alertas = [];
-        if ($vehiculo->km_actual >= $vehiculo->km_proximo_mantenimiento) $alertas[] = 'Mantenimiento General';
-        if ($vehiculo->km_actual >= $vehiculo->km_proxima_rotacion) $alertas[] = 'Rotación de Cauchos';
-        if ($vehiculo->km_actual >= $vehiculo->km_proximo_lavado) $alertas[] = 'Lavado de Chasis';
+        // 3. Verificar Alertas Extendidas
+        $alertas = $this->checkVehicleAlerts($vehiculo);
 
         if (count($alertas) > 0) {
              try {
                 Mail::to('ingenieria@webcincodev.com')->send(new AlertaMantenimiento($vehiculo));
-             } catch(\Exception $e) {
-                \Log::error("Error enviando correo: " . $e->getMessage());
-             }
+             } catch(\Exception $e) { }
 
             return response()->json([
                 'status' => 'alert',
@@ -157,19 +159,50 @@ class VehiculoController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => count($mantenimientosRealizados) > 0 
-                ? 'Kilometraje y mantenimientos (' . implode(', ', $mantenimientosRealizados) . ') registrados.'
-                : 'Kilometraje actualizado correctamente.',
+                ? 'Registros completados: ' . implode(', ', $mantenimientosRealizados)
+                : 'Kilometraje actualizado.',
             'data' => $vehiculo,
             'alert' => false
         ]);
     }
 
+    private function checkVehicleAlerts($v)
+    {
+        $alertas = [];
+        $km = $v->km_actual;
+        
+        // KM Alerts
+        if ($km >= ($v->km_proximo_mantenimiento ?: 5000)) $alertas[] = 'Mantenimiento General';
+        if ($km >= ($v->km_proximo_aceite ?: 5000)) $alertas[] = 'Aceite';
+        if ($km >= ($v->km_proximo_filtro_aire ?: 10000)) $alertas[] = 'Filtro Aire';
+        if ($km >= ($v->km_proximo_filtro_combustible ?: 5000)) $alertas[] = 'Filtro Combustible';
+        if ($km >= ($v->km_proxima_rotacion ?: 10000)) $alertas[] = 'Rotación Cauchos';
+        if ($km >= ($v->km_proximo_lavado ?: 2000)) $alertas[] = 'Lavado Chasis';
+        if ($km >= ($v->km_proximas_correas ?: 50000)) $alertas[] = 'Correas';
+        if ($km >= ($v->km_proximas_pastillas ?: 20000)) $alertas[] = 'Frenos';
+
+        // Date Alerts
+        $today = now();
+        if ($v->fecha_vencimiento_poliza && $today->greaterThanOrEqualTo($v->fecha_vencimiento_poliza)) $alertas[] = 'Póliza Vencida';
+        if ($v->fecha_vencimiento_roct && $today->greaterThanOrEqualTo($v->fecha_vencimiento_roct)) $alertas[] = 'ROCT Vencido';
+        if ($v->fecha_vencimiento_impuesto && $today->greaterThanOrEqualTo($v->fecha_vencimiento_impuesto)) $alertas[] = 'Impuesto Vencido';
+        if ($v->fecha_vencimiento_bateria && $today->greaterThanOrEqualTo($v->fecha_vencimiento_bateria)) $alertas[] = 'Batería Vencida';
+
+        return $alertas;
+    }
+
     public function stats()
     {
+        $all = Vehiculo::all();
+        $criticalCount = 0;
+        foreach($all as $v) {
+            if (count($this->checkVehicleAlerts($v)) > 0) $criticalCount++;
+        }
+
         return response()->json([
-            'totalVehicles' => Vehiculo::count(),
-            'criticalAlerts' => Vehiculo::whereColumn('km_actual', '>=', 'km_proximo_mantenimiento')->count(),
-            'upToDate' => Vehiculo::whereColumn('km_actual', '<', 'km_proximo_mantenimiento')->count(),
+            'totalVehicles' => $all->count(),
+            'criticalAlerts' => $criticalCount,
+            'upToDate' => $all->count() - $criticalCount,
             'monthlySpending' => \App\Models\Mantenimiento::whereMonth('fecha_mantenimiento', now()->month)->sum('costo')
         ]);
     }
@@ -187,30 +220,40 @@ class VehiculoController extends Controller
             ];
         }
 
-        $health = [
-            'critical' => Vehiculo::whereColumn('km_actual', '>=', 'km_proximo_mantenimiento')->count(),
-            'warning' => Vehiculo::whereRaw('km_proximo_mantenimiento - km_actual <= 500')
-                            ->whereRaw('km_proximo_mantenimiento - km_actual > 0')->count(),
-            'good' => Vehiculo::whereRaw('km_proximo_mantenimiento - km_actual > 500')->count()
-        ];
+        $all = Vehiculo::all();
+        $critical = 0; $warning = 0; $good = 0;
+        
+        foreach($all as $v) {
+            $alertas = $this->checkVehicleAlerts($v);
+            if (count($alertas) > 0) {
+                $critical++;
+            } else {
+                // Warning logic: close to any KM limit (within 500km)
+                $isWarning = false;
+                $km = $v->km_actual;
+                $checks = ['km_proximo_mantenimiento', 'km_proximo_aceite', 'km_proximo_filtro_aire', 'km_proximo_filtro_combustible', 'km_proxima_rotacion', 'km_proximo_lavado'];
+                foreach($checks as $c) {
+                    if ($v->$c && ($v->$c - $km) <= 500 && ($v->$c - $km) > 0) $isWarning = true;
+                }
+                if ($isWarning) $warning++; else $good++;
+            }
+        }
 
         return response()->json([
             'spendingTrend' => $last6Months,
-            'healthStats' => $health,
+            'healthStats' => ['critical' => $critical, 'warning' => $warning, 'good' => $good],
             'topMileage' => Vehiculo::orderBy('km_actual', 'desc')->limit(5)->get(['placa', 'km_actual']),
             'suggestions' => [
-                'Renovar flota con más de 200,000 KM para reducir costos de correctivos.',
-                'Incrementar frecuencia de preventivos en sede con mayor reporte de fallas.',
-                'Digitalizar facturas de talleres externos para mejor auditoría fiscal.'
+                'Hay ' . $critical . ' vehículos con alertas activas que requieren atención inmediata.',
+                'Sugerencia: Revisar vencimientos de pólizas y ROCT para evitar multas.',
+                'Los costos de mantenimiento preventivo son un 40% menores que los correctivos.'
             ]
         ]);
     }
 
     public function import(Request $request)
     {
-        $request->validate([
-            'file' => 'required|mimes:csv,txt'
-        ]);
+        $request->validate(['file' => 'required|mimes:csv,txt']);
 
         $file = $request->file('file');
         $csvData = file_get_contents($file);
@@ -219,16 +262,20 @@ class VehiculoController extends Controller
 
         $imported = 0;
         foreach ($rows as $row) {
-            if (count($row) >= 4) { // Basic validation
-                $placa = $row[0];
-                if(trim($placa) != '') {
+            if (count($row) >= 3) {
+                $placa = trim($row[0]);
+                if($placa != '') {
                     Vehiculo::updateOrCreate(
-                        ['placa' => trim($placa)],
+                        ['placa' => $placa],
                         [
-                            'marca' => trim($row[1]),
-                            'modelo' => trim($row[2]),
-                            'sede_id' => trim($row[3]) ?: null,
-                            'km_actual' => isset($row[4]) ? (int)trim($row[4]) : 0,
+                            'n_interno' => $row[1] ?? null,
+                            'modelo' => $row[2] ?? 'Desconocido',
+                            'tipo' => $row[3] ?? null,
+                            'marca' => $row[4] ?? 'Desconocido',
+                            'km_actual' => isset($row[5]) ? (int)$row[5] : 0,
+                            'propietario' => $row[6] ?? null,
+                            'empresa' => $row[7] ?? null,
+                            'sede_id' => 1 // Default
                         ]
                     );
                     $imported++;
@@ -236,6 +283,6 @@ class VehiculoController extends Controller
             }
         }
 
-        return response()->json(['message' => "$imported vehículos importados exitosamente.", 'imported' => $imported]);
+        return response()->json(['message' => "$imported unidades cargadas.", 'imported' => $imported]);
     }
 }

@@ -101,7 +101,7 @@ const Documents = () => {
       <header className="header">
         <div>
           <h1>Gestión Documental</h1>
-          <p style={{ color: 'var(--text-muted)' }}>Almacenamiento central de pólizas, SOAT y revisiones técnicas.</p>
+          <p style={{ color: 'var(--text-muted)' }}>Almacenamiento central de pólizas RCV, ROCT y títulos de propiedad.</p>
         </div>
         <button onClick={() => setShowUploadModal(true)} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <Upload size={18} />
@@ -126,10 +126,10 @@ const Documents = () => {
           style={{ padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border)', minWidth: '150px' }}
         >
           <option value="todos">Todos los Tipos</option>
-          <option value="SOAT">SOAT</option>
+          <option value="Póliza RCV">Póliza RCV</option>
           <option value="Seguro Todo Riesgo">Seguro Todo Riesgo</option>
-          <option value="Revisión Técnico Mecánica">Revisión Técnico Mecánica</option>
-          <option value="Tarjeta de Propiedad">Tarjeta de Propiedad</option>
+          <option value="ROCT">ROCT (Carga)</option>
+          <option value="Título de Propiedad">Título de Propiedad</option>
           <option value="Otros">Otros</option>
         </select>
       </div>
@@ -243,10 +243,10 @@ const Documents = () => {
                   required
                 >
                   <option value="">Selecciona tipo...</option>
-                  <option value="SOAT">SOAT</option>
+                  <option value="Póliza RCV">Póliza RCV</option>
                   <option value="Seguro Todo Riesgo">Seguro Todo Riesgo</option>
-                  <option value="Revisión Técnico Mecánica">Revisión Técnico Mecánica</option>
-                  <option value="Tarjeta de Propiedad">Tarjeta de Propiedad</option>
+                  <option value="ROCT">ROCT (Carga)</option>
+                  <option value="Título de Propiedad">Título de Propiedad</option>
                   <option value="Otros">Otros</option>
                 </select>
               </div>
@@ -261,10 +261,10 @@ const Documents = () => {
                 />
               </div>
               <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Archivo (PDF o Imagen)</label>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Archivo (PDF, Excel o Imagen)</label>
                 <input 
                   type="file"
-                  accept=".pdf,image/*"
+                  accept=".pdf,.xlsx,.xls,.csv,image/*"
                   onChange={e => setNewDoc({...newDoc, file: e.target.files[0]})}
                   style={{ width: '100%', padding: '0.5rem 0' }}
                   required
