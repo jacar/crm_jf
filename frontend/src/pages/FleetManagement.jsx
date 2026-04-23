@@ -88,10 +88,15 @@ const FleetManagement = () => {
     }
   };
 
-  const filteredVehicles = vehicles.filter(v => 
-    v.placa.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    v.marca?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredVehicles = vehicles.filter(v => {
+    const matchesSearch = v.placa.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         v.marca?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (v.n_interno && v.n_interno.toString().includes(searchTerm));
+    
+    const matchesSede = selectedSede === 'ALL' || v.sede_id === parseInt(selectedSede);
+    
+    return matchesSearch && matchesSede;
+  });
 
   if (loading) return <div style={{ display: 'flex', justifyContent: 'center', padding: '5rem' }}><Loader2 className="animate-spin" /></div>;
 
@@ -133,16 +138,20 @@ const FleetManagement = () => {
         <div style={{ position: 'relative', flex: 1 }}>
           <input 
             type="text" 
-            placeholder="Filtrar por placa o marca..." 
+            placeholder="Filtrar por placa, marca o Nº..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{ width: '100%', padding: '0.75rem 1rem', paddingLeft: '2.5rem', borderRadius: '8px', border: '1px solid var(--border)' }}
           />
           <Filter size={18} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--accent)' }} />
         </div>
-        <select style={{ padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border)' }}>
-          <option>Todas las Sedes</option>
-          {sedes.map(s => <option key={s.id}>{s.nombre}</option>)}
+        <select 
+          value={selectedSede}
+          onChange={(e) => setSelectedSede(e.target.value)}
+          style={{ padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border)', background: 'white' }}
+        >
+          <option value="ALL">Todas las Sedes</option>
+          {sedes.map(s => <option key={s.id} value={s.id}>{s.nombre}</option>)}
         </select>
         <select style={{ padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border)' }}>
           <option>Todos los Tipos</option>
